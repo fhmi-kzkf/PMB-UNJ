@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}Cek Hasil Seleksi - PMB UNJ{% endblock %}
+
+{% block content %}
+<section class="section-dark hasil-search-section" id="hasil-search-section">
+    <div class="container container-sm text-center">
+        <h1 class="section-title section-title-light">Cek Hasil Seleksi</h1>
+        <p class="section-desc">Masukkan nomor registrasi Anda untuk melihat status kelulusan.</p>
+        
+        <form method="get" class="search-form" id="search-hasil-form">
+            <input type="text" name="no_registrasi" value="{{ no_registrasi }}" placeholder="Contoh: PMB-2026-A3F8C" class="form-input search-input" required>
+            <button type="submit" class="btn btn-cta">Cari Hasil</button>
+        </form>
+    </div>
+</section>
+
+{% if searched %}
+<section class="section-light hasil-result-section" id="hasil-result-section">
+    <div class="container container-sm">
+        {% if pendaftar %}
+            <div class="result-card result-{{ pendaftar.status_seleksi }}">
+                <div class="result-header">
+                    <h2>Hasil Seleksi PMB 2026</h2>
+                </div>
+                <div class="result-body text-center">
+                    <p class="result-name">{{ pendaftar.nama_lengkap }}</p>
+                    <p class="result-reg">{{ pendaftar.no_registrasi }}</p>
+                    
+                    <div class="status-badge-large status-{{ pendaftar.status_seleksi }}">
+                        {{ pendaftar.get_status_seleksi_display|upper }}
+                    </div>
+                    
+                    {% if pendaftar.status_seleksi == 'lulus' %}
+                        <p class="result-msg text-success">
+                            Selamat! Anda dinyatakan lulus di program studi:<br>
+                            <strong>{{ pendaftar.jurusan_pilihan1.nama_jurusan }}</strong>
+                        </p>
+                        <p class="result-instruction">Silakan login ke akun Anda untuk melihat informasi daftar ulang dan pembayaran.</p>
+                    {% elif pendaftar.status_seleksi == 'cadangan' %}
+                        <p class="result-msg text-warning">
+                            Anda berstatus cadangan di program studi:<br>
+                            <strong>{{ pendaftar.jurusan_pilihan1.nama_jurusan }}</strong>
+                        </p>
+                        <p class="result-instruction">Harap pantau terus status Anda secara berkala.</p>
+                    {% elif pendaftar.status_seleksi == 'tidak_lulus' %}
+                        <p class="result-msg text-error">
+                            Mohon maaf, Anda dinyatakan tidak lulus seleksi.
+                        </p>
+                        <p class="result-instruction">Jangan patah semangat, silakan coba jalur pendaftaran lainnya.</p>
+                    {% else %}
+                        <p class="result-msg">
+                            Proses seleksi untuk program studi <strong>{{ pendaftar.jurusan_pilihan1.nama_jurusan }}</strong> belum dilakukan atau masih dalam tahap verifikasi.
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+{% endblock %}

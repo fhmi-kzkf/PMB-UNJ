@@ -1,0 +1,276 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}PMB 2026 - Universitas Nusantara Jaya{% endblock %}
+
+{% block content %}
+<!-- Hero Section: Split Layout (White Left / Dark Right) -->
+<section class="hero" id="hero-section">
+    <div class="hero-left">
+        <div class="hero-content">
+            <p class="hero-label">PENERIMAAN MAHASISWA BARU 2026</p>
+            <h1 class="hero-headline">
+                Raih Masa Depan<br>
+                di Universitas<br>
+                <span class="text-accent">Nusantara Jaya</span>
+            </h1>
+            <p class="hero-sub">
+                Bergabunglah dengan ribuan mahasiswa berprestasi. Pendaftaran online mudah, cepat, dan transparan.
+            </p>
+            <div class="hero-actions">
+                <a href="{% url 'accounts:register' %}" class="btn btn-cta btn-lg" id="btn-hero-register">Daftar Sekarang</a>
+                <a href="#jalur-masuk" class="btn btn-outlined btn-lg" id="btn-hero-info">Lihat Jalur Masuk</a>
+            </div>
+        </div>
+    </div>
+    <div class="hero-right">
+        <div class="hero-card">
+            <h2 class="hero-card-title">Mulai Pendaftaran</h2>
+            <p class="hero-card-desc">Buat akun dan lengkapi formulir pendaftaran dalam hitungan menit.</p>
+            <div class="hero-stats-mini">
+                <div class="stat-mini">
+                    <span class="stat-mini-value">{{ total_jurusan }}</span>
+                    <span class="stat-mini-label">PROGRAM STUDI</span>
+                </div>
+                <div class="stat-mini">
+                    <span class="stat-mini-value">4</span>
+                    <span class="stat-mini-label">JALUR MASUK</span>
+                </div>
+            </div>
+            <a href="{% url 'accounts:register' %}" class="btn btn-cta btn-full" id="btn-hero-card-register">Buat Akun →</a>
+            <p class="hero-card-login">Sudah punya akun? <a href="{% url 'accounts:login' %}" class="link-violet">Masuk di sini</a></p>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section: Dark Background -->
+<section class="section-dark stats-section" id="stats-section">
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card" id="stat-jurusan">
+                <span class="stat-value">{{ total_jurusan }}</span>
+                <span class="stat-label">PROGRAM STUDI</span>
+            </div>
+            <div class="stat-card" id="stat-jalur">
+                <span class="stat-value">4</span>
+                <span class="stat-label">JALUR MASUK</span>
+            </div>
+            <div class="stat-card" id="stat-pendaftar">
+                <span class="stat-value">{{ total_pendaftar }}+</span>
+                <span class="stat-label">PENDAFTAR</span>
+            </div>
+            <div class="stat-card" id="stat-akreditasi">
+                <span class="stat-value">A</span>
+                <span class="stat-label">AKREDITASI</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Jalur Masuk Section -->
+<section class="section-light" id="jalur-masuk">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-label">JALUR PENERIMAAN</p>
+            <h2 class="section-title">Pilih Jalur Masuk Terbaik untuk Anda</h2>
+        </div>
+        <div class="jalur-grid">
+            {% for jalur in jalur_masuk %}
+            <div class="jalur-card" id="jalur-card-{{ jalur.id }}">
+                <div class="jalur-icon">
+                    {% if jalur.nama_jalur == "Reguler" %}📝{% elif jalur.nama_jalur == "Prestasi" %}🏆{% elif jalur.nama_jalur == "KIP-K" %}🎓{% else %}🤝{% endif %}
+                </div>
+                <h3 class="jalur-name">{{ jalur.nama_jalur }}</h3>
+                <p class="jalur-desc">{{ jalur.deskripsi|default:"Informasi jalur masuk akan segera tersedia." }}</p>
+                {% if jalur.periode_mulai and jalur.periode_selesai %}
+                <div class="jalur-period">
+                    <span class="jalur-date">📅 {{ jalur.periode_mulai|date:"d M Y" }} — {{ jalur.periode_selesai|date:"d M Y" }}</span>
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p class="text-muted">Informasi jalur masuk belum tersedia.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Program Studi Section: Light -->
+<section class="section-light prodi-section" id="prodi-section">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-label">PROGRAM STUDI IT UNGGULAN</p>
+            <h2 class="section-title">Temukan Program Studi IT Pilihan Anda</h2>
+            <p class="section-desc text-muted">Kurikulum adaptif berbasis industri yang dirancang khusus untuk mencetak tenaga ahli IT profesional siap kerja.</p>
+        </div>
+        
+        <div class="prodi-grid">
+            {% for jurusan in jurusan_list %}
+            <div class="prodi-card" id="prodi-card-{{ jurusan.id }}">
+                <div class="prodi-card-header">
+                    <span class="prodi-badge">Akreditasi {{ jurusan.akreditasi|default:"-" }}</span>
+                    <h3 class="prodi-name">{{ jurusan.nama_jurusan }}</h3>
+                </div>
+                <div class="prodi-card-body">
+                    <p class="prodi-desc">{{ jurusan.deskripsi }}</p>
+                    
+                    <div class="prodi-detail-section">
+                        <span class="prodi-detail-title">💡 Apa Yang Dipelajari:</span>
+                        <p class="prodi-detail-text">{{ jurusan.materi_pembelajaran }}</p>
+                    </div>
+
+                    <div class="prodi-detail-section">
+                        <span class="prodi-detail-title">🚀 Prospek Karir:</span>
+                        <p class="prodi-detail-text">{{ jurusan.prospek_karir }}</p>
+                    </div>
+                </div>
+                <div class="prodi-card-footer">
+                    <span class="prodi-quota">Kuota Utama: {{ jurusan.kuota }} Mahasiswa</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Jadwal Section -->
+<section class="section-light" id="jadwal">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-label">TIMELINE</p>
+            <h2 class="section-title">Jadwal Penting PMB 2026</h2>
+        </div>
+        <div class="timeline">
+            {% for j in jadwal %}
+            <div class="timeline-item" id="timeline-{{ j.id }}">
+                <div class="timeline-marker">
+                    <span class="timeline-number">{{ forloop.counter }}</span>
+                </div>
+                <div class="timeline-content">
+                    <h3 class="timeline-title">{{ j.nama_kegiatan }}</h3>
+                    {% if j.tanggal_mulai %}
+                    <p class="timeline-date">
+                        {{ j.tanggal_mulai|date:"d M Y" }}
+                        {% if j.tanggal_selesai %} — {{ j.tanggal_selesai|date:"d M Y" }}{% endif %}
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+            {% empty %}
+            <p class="text-muted">Jadwal belum tersedia.</p>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Biaya Section: Dark -->
+<section class="section-dark" id="biaya">
+    <div class="container">
+        <div class="feature-layout">
+            <div class="feature-left">
+                <p class="section-label section-label-light">ESTIMASI BIAYA</p>
+                <h2 class="section-title section-title-light">Investasi untuk<br>Masa Depan Anda</h2>
+                <p class="feature-desc">Biaya studi yang kompetitif dengan berbagai opsi keringanan.</p>
+            </div>
+            <div class="feature-right">
+                <div class="feature-item">
+                    <span class="check-icon">✓</span>
+                    <div>
+                        <span class="feature-text">Uang Pangkal</span>
+                        <span class="feature-badge">Rp 5.000.000 — Rp 15.000.000</span>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="check-icon">✓</span>
+                    <div>
+                        <span class="feature-text">SPP per Semester</span>
+                        <span class="feature-badge">Rp 3.000.000 — Rp 7.500.000</span>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="check-icon">✓</span>
+                    <div>
+                        <span class="feature-text">Beasiswa KIP-Kuliah</span>
+                        <span class="feature-badge">Pembebasan biaya penuh bagi yang memenuhi syarat</span>
+                    </div>
+                </div>
+                <div class="feature-item">
+                    <span class="check-icon">✓</span>
+                    <div>
+                        <span class="feature-text">Beasiswa Prestasi</span>
+                        <span class="feature-badge">Potongan hingga 75% untuk pendaftar jalur prestasi</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="section-light" id="faq">
+    <div class="container">
+        <div class="section-header">
+            <p class="section-label">FAQ</p>
+            <h2 class="section-title">Pertanyaan yang Sering Diajukan</h2>
+        </div>
+        <div class="faq-list">
+            <div class="faq-item" id="faq-1">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>Apa saja persyaratan pendaftaran?</span>
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>Persyaratan umum: KTP/KK, NISN aktif, ijazah/SKL SMA/SMK/MA, pas foto terbaru, dan nilai rapor semester 1-5. Persyaratan khusus menyesuaikan jalur masuk yang dipilih.</p>
+                </div>
+            </div>
+            <div class="faq-item" id="faq-2">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>Bagaimana cara mendaftar online?</span>
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>1. Buat akun menggunakan NIK, NISN, dan email aktif. 2. Login dan isi formulir pendaftaran. 3. Upload dokumen yang diperlukan. 4. Cetak bukti pendaftaran. 5. Tunggu pengumuman hasil seleksi.</p>
+                </div>
+            </div>
+            <div class="faq-item" id="faq-3">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>Bagaimana proses seleksi dilakukan?</span>
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>Seleksi berdasarkan skor akhir = (Nilai Akademik × 60%) + (Nilai Tes × 40%). Pendaftar diranking per program studi. Status: Lulus (sesuai kuota), Cadangan (kuota cadangan), atau Tidak Lulus.</p>
+                </div>
+            </div>
+            <div class="faq-item" id="faq-4">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>Kapan hasil seleksi diumumkan?</span>
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>Hasil seleksi diumumkan sesuai jadwal yang tertera pada timeline di atas. Anda dapat mengecek hasil menggunakan nomor registrasi pada halaman Cek Hasil.</p>
+                </div>
+            </div>
+            <div class="faq-item" id="faq-5">
+                <button class="faq-question" onclick="toggleFaq(this)">
+                    <span>Apakah bisa memilih 2 program studi?</span>
+                    <span class="faq-icon">+</span>
+                </button>
+                <div class="faq-answer">
+                    <p>Ya, Anda dapat memilih 2 program studi (Pilihan 1 dan Pilihan 2). Seleksi utama berdasarkan Pilihan 1. Jika tidak lolos di Pilihan 1, sistem akan mempertimbangkan Pilihan 2 (jika kuota tersedia).</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section: Dark -->
+<section class="section-dark cta-section" id="cta-section">
+    <div class="container">
+        <div class="cta-content">
+            <h2 class="cta-title">Siap Memulai Perjalanan Anda?</h2>
+            <p class="cta-desc">Jangan lewatkan kesempatan emas ini. Daftar sekarang dan wujudkan impian Anda bersama Universitas Nusantara Jaya.</p>
+            <a href="{% url 'accounts:register' %}" class="btn btn-cta btn-lg" id="btn-cta-register">Daftar Sekarang →</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

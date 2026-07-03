@@ -1,0 +1,650 @@
+{% extends 'base.html' %}
+
+{% block title %}Formulir Pendaftaran - PMB UNJ{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Styling khusus wizard pendaftaran */
+    .progress-bar-wizard {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: var(--spacing-24) 0 var(--spacing-48);
+        position: relative;
+        background: #f0f0f0;
+        height: 4px;
+        border-radius: 2px;
+    }
+    
+    .progress-line-active {
+        position: absolute;
+        height: 100%;
+        background-color: var(--color-skill-green);
+        left: 0;
+        top: 0;
+        width: 0%;
+        transition: width 0.3s ease;
+        z-index: 1;
+    }
+    
+    .wizard-step {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-color: #f0f0f0;
+        border: 2px solid var(--color-fog-border);
+        color: var(--color-ash-mid);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+        z-index: 2;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+    
+    .wizard-step.active {
+        background-color: var(--color-studio-black);
+        color: var(--color-pure-white);
+        border-color: var(--color-studio-black);
+    }
+    
+    .wizard-step.completed {
+        background-color: var(--color-skill-green);
+        color: var(--color-deep-ink);
+        border-color: var(--color-skill-green);
+    }
+
+    .wizard-step-label {
+        position: absolute;
+        top: 42px;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+        color: var(--color-ash-mid);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+    
+    .wizard-step.active .wizard-step-label,
+    .wizard-step.completed .wizard-step-label {
+        color: var(--color-deep-ink);
+    }
+
+    .form-step-panel {
+        background: var(--color-pure-white);
+        border: 1px solid var(--color-fog-border);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-48);
+        box-shadow: var(--shadow-sm);
+        animation: fadeIn 0.4s ease;
+    }
+
+    .step-title-group {
+        border-bottom: 1px solid var(--color-fog-border);
+        padding-bottom: var(--spacing-16);
+        margin-bottom: var(--spacing-32);
+    }
+
+    .step-title {
+        font-size: 24px;
+        margin: 0;
+        color: var(--color-deep-ink);
+    }
+
+    .step-subtitle {
+        font-size: 14px;
+        color: var(--color-ash-mid);
+        margin-top: 4px;
+    }
+
+    .wizard-buttons {
+        display: flex;
+        justify-content: space-between;
+        margin-top: var(--spacing-32);
+        border-top: 1px solid var(--color-fog-border);
+        padding-top: var(--spacing-24);
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 768px) {
+        .wizard-step-label { display: none; }
+        .form-step-panel { padding: var(--spacing-24); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section-light form-section" id="pendaftaran-form-section">
+    <div class="container container-sm">
+        <div class="form-header">
+            <h1 class="form-title">Pendaftaran Mahasiswa Baru</h1>
+            <p class="form-subtitle">Lengkapi formulir pendaftaran 5 tahap di bawah ini secara teliti.</p>
+            
+            <!-- Wizard Progress Tracker -->
+            <div class="progress-bar-wizard">
+                <div class="progress-line-active" id="progress-line"></div>
+                <div class="wizard-step active" id="w-step-1">1<span class="wizard-step-label">Identitas</span></div>
+                <div class="wizard-step" id="w-step-2">2<span class="wizard-step-label">Pendidikan</span></div>
+                <div class="wizard-step" id="w-step-3">3<span class="wizard-step-label">Prodi</span></div>
+                <div class="wizard-step" id="w-step-4">4<span class="wizard-step-label">Orang Tua</span></div>
+                <div class="wizard-step" id="w-step-5">5<span class="wizard-step-label">Berkas</span></div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="app-form" id="pendaftaran-form">
+            {% csrf_token %}
+
+            {% if form.errors %}
+            <div class="alert alert-error mb-24">
+                <span class="alert-text">Terdapat kesalahan pengisian. Harap cek kembali setiap halaman formulir.</span>
+            </div>
+            {% endif %}
+
+            <!-- TAHAP 1: Data Pribadi & Identitas -->
+            <div class="form-step-panel" id="step-panel-1">
+                <div class="step-title-group">
+                    <h2 class="step-title">Tahap 1: Data Pribadi & Identitas</h2>
+                    <p class="step-subtitle">Isi data pribadi Anda dengan benar sesuai KTP/KK/Akta Kelahiran.</p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label font-bold">{{ form.nama_lengkap.label }} <span class="text-error">*</span></label>
+                    {{ form.nama_lengkap }}
+                    {{ form.nama_lengkap.errors }}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.nik.label }} (16 digit) <span class="text-error">*</span></label>
+                        {{ form.nik }}
+                        {{ form.nik.errors }}
+                    </div>
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.nisn.label }} (10 digit) <span class="text-error">*</span></label>
+                        {{ form.nisn }}
+                        {{ form.nisn.errors }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.tempat_lahir.label }} <span class="text-error">*</span></label>
+                        {{ form.tempat_lahir }}
+                        {{ form.tempat_lahir.errors }}
+                    </div>
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.tanggal_lahir.label }} <span class="text-error">*</span></label>
+                        {{ form.tanggal_lahir }}
+                        {{ form.tanggal_lahir.errors }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label font-bold">{{ form.alamat.label }} <span class="text-error">*</span></label>
+                    {{ form.alamat }}
+                    {{ form.alamat.errors }}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.no_hp.label }} <span class="text-error">*</span></label>
+                        {{ form.no_hp }}
+                        {{ form.no_hp.errors }}
+                    </div>
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.email.label }} <span class="text-error">*</span></label>
+                        {{ form.email }}
+                        {{ form.email.errors }}
+                    </div>
+                </div>
+
+                <div class="wizard-buttons">
+                    <div></div> <!-- Spacing -->
+                    <button type="button" class="btn btn-cta" onclick="goToStep(2)">Lanjut Tahap 2 →</button>
+                </div>
+            </div>
+
+            <!-- TAHAP 2: Data Pendidikan & Akademik -->
+            <div class="form-step-panel" id="step-panel-2" style="display: none;">
+                <div class="step-title-group">
+                    <h2 class="step-title">Tahap 2: Data Pendidikan & Akademik</h2>
+                    <p class="step-subtitle">Masukkan riwayat pendidikan dan nilai rapor Anda.</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label font-bold">{{ form.asal_sekolah.label }} <span class="text-error">*</span></label>
+                    {{ form.asal_sekolah }}
+                    {{ form.asal_sekolah.errors }}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.jurusan_sekolah.label }} <span class="text-error">*</span></label>
+                        {{ form.jurusan_sekolah }}
+                        {{ form.jurusan_sekolah.errors }}
+                    </div>
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.tahun_lulus.label }} <span class="text-error">*</span></label>
+                        {{ form.tahun_lulus }}
+                        {{ form.tahun_lulus.errors }}
+                    </div>
+                </div>
+
+                <div class="form-group" id="nilai-akademik-group">
+                    <label class="form-label font-bold">{{ form.nilai_akademik.label }} (0-100) <span class="text-error">*</span></label>
+                    {{ form.nilai_akademik }}
+                    {{ form.nilai_akademik.errors }}
+                    <p class="text-muted text-caption mt-8">Gunakan rata-rata nilai rapor semester 1 s.d 5.</p>
+                </div>
+
+                <div class="wizard-buttons">
+                    <button type="button" class="btn btn-outlined" onclick="goToStep(1)">← Kembali</button>
+                    <button type="button" class="btn btn-cta" onclick="goToStep(3)">Lanjut Tahap 3 →</button>
+                </div>
+            </div>
+
+            <!-- TAHAP 3: Pilihan Program Studi -->
+            <div class="form-step-panel" id="step-panel-3" style="display: none;">
+                <div class="step-title-group">
+                    <h2 class="step-title">Tahap 3: Pilihan Program Studi</h2>
+                    <p class="step-subtitle">Pilih jalur pendaftaran dan program studi IT pilihan Anda.</p>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.jalur_masuk.label }} <span class="text-error">*</span></label>
+                        {{ form.jalur_masuk }}
+                        {{ form.jalur_masuk.errors }}
+                    </div>
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.jenis_kelas.label }} <span class="text-error">*</span></label>
+                        {{ form.jenis_kelas }}
+                        {{ form.jenis_kelas.errors }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label font-bold">{{ form.jurusan_pilihan1.label }} <span class="text-error">*</span></label>
+                    {{ form.jurusan_pilihan1 }}
+                    {{ form.jurusan_pilihan1.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label font-bold">{{ form.jurusan_pilihan2.label }} (Pilihan Cadangan)</label>
+                    {{ form.jurusan_pilihan2 }}
+                    {{ form.jurusan_pilihan2.errors }}
+                    <p class="text-muted text-caption mt-8">Jurusan pilihan 2 tidak boleh sama dengan pilihan 1.</p>
+                </div>
+
+                <div class="wizard-buttons">
+                    <button type="button" class="btn btn-outlined" onclick="goToStep(2)">← Kembali</button>
+                    <button type="button" class="btn btn-cta" onclick="goToStep(4)">Lanjut Tahap 4 →</button>
+                </div>
+            </div>
+
+            <!-- TAHAP 4: Data Orang Tua / Wali -->
+            <div class="form-step-panel" id="step-panel-4" style="display: none;">
+                <div class="step-title-group">
+                    <h2 class="step-title">Tahap 4: Data Orang Tua / Wali</h2>
+                    <p class="step-subtitle">Isi identitas orang tua atau wali untuk korespondensi resmi.</p>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.nama_ayah.label }}</label>
+                        {{ form.nama_ayah }}
+                        {{ form.nama_ayah.errors }}
+                    </div>
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.nama_ibu.label }}</label>
+                        {{ form.nama_ibu }}
+                        {{ form.nama_ibu.errors }}
+                    </div>
+                </div>
+                <p class="text-muted text-caption mb-16" style="margin-top:-10px;">* Wajib mengisi minimal salah satu (Ayah/Ibu). Jika sudah tiada, ketik '-' atau 'Almarhum/ah'.</p>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.no_hp_ortu.label }} <span class="text-error">*</span></label>
+                        {{ form.no_hp_ortu }}
+                        {{ form.no_hp_ortu.errors }}
+                    </div>
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.no_hp_ortu_cadangan.label }}</label>
+                        {{ form.no_hp_ortu_cadangan }}
+                        {{ form.no_hp_ortu_cadangan.errors }}
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.pekerjaan_ortu.label }} <span class="text-error">*</span></label>
+                        {{ form.pekerjaan_ortu }}
+                        {{ form.pekerjaan_ortu.errors }}
+                    </div>
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.penghasilan_ortu.label }} <span class="text-error">*</span></label>
+                        {{ form.penghasilan_ortu }}
+                        {{ form.penghasilan_ortu.errors }}
+                    </div>
+                </div>
+
+                <div class="wizard-buttons">
+                    <button type="button" class="btn btn-outlined" onclick="goToStep(3)">← Kembali</button>
+                    <button type="button" class="btn btn-cta" onclick="goToStep(5)">Lanjut Tahap 5 (Terakhir) →</button>
+                </div>
+            </div>
+
+            <!-- TAHAP 5: Unggah Dokumen Berkas -->
+            <div class="form-step-panel" id="step-panel-5" style="display: none;">
+                <div class="step-title-group">
+                    <h2 class="step-title">Tahap 5: Unggah Dokumen Berkas</h2>
+                    <p class="step-subtitle">Unggah seluruh berkas persyaratan berformat PDF, JPG, PNG (Maksimal 2MB per file).</p>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label font-bold">{{ form.file_pasfoto.label }} <span class="text-error">*</span></label>
+                    {{ form.file_pasfoto }}
+                    {{ form.file_pasfoto.errors }}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.file_ktp.label }} <span class="text-error">*</span></label>
+                        {{ form.file_ktp }}
+                        {{ form.file_ktp.errors }}
+                    </div>
+                    <div class="form-group half">
+                        <label class="form-label font-bold">{{ form.file_kk.label }} <span class="text-error">*</span></label>
+                        {{ form.file_kk }}
+                        {{ form.file_kk.errors }}
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label font-bold">{{ form.file_ijazah.label }} <span class="text-error">*</span></label>
+                    {{ form.file_ijazah }}
+                    {{ form.file_ijazah.errors }}
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label font-bold">{{ form.file_sertifikat.label }}</label>
+                    {{ form.file_sertifikat }}
+                    {{ form.file_sertifikat.errors }}
+                </div>
+
+                <div class="wizard-buttons">
+                    <button type="button" class="btn btn-outlined" onclick="goToStep(4)">← Kembali</button>
+                    <button type="submit" class="btn btn-cta btn-lg" id="btn-submit-wizard">Kirim Pendaftaran ✓</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentStep = 1;
+    const totalSteps = 5;
+
+    function goToStep(step) {
+        if (step > currentStep) {
+            // Validasi input pada tahap saat ini sebelum lanjut ke tahap berikutnya
+            if (!validateStep(currentStep)) {
+                return;
+            }
+        }
+
+        // Sembunyikan panel tahap saat ini
+        document.getElementById(`step-panel-${currentStep}`).style.display = 'none';
+        document.getElementById(`w-step-${currentStep}`).classList.remove('active');
+        if (step > currentStep) {
+            document.getElementById(`w-step-${currentStep}`).classList.add('completed');
+        }
+
+        // Tampilkan panel tahap baru
+        document.getElementById(`step-panel-${step}`).style.display = 'block';
+        document.getElementById(`w-step-${step}`).classList.add('active');
+        document.getElementById(`w-step-${step}`).classList.remove('completed');
+
+        // Update garis progress bar
+        const progressPercent = ((step - 1) / (totalSteps - 1)) * 100;
+        document.getElementById('progress-line').style.width = `${progressPercent}%`;
+
+        currentStep = step;
+        
+        // Scroll ke atas halaman form
+        window.scrollTo({
+            top: document.getElementById('pendaftaran-form-section').offsetTop - 80,
+            behavior: 'smooth'
+        });
+    }
+
+    function validateStep(step) {
+        const panel = document.getElementById(`step-panel-${step}`);
+        const inputs = panel.querySelectorAll('input[required], select[required], textarea[required]');
+        let isValid = true;
+
+        inputs.forEach(input => {
+            // Bersihkan error lama
+            const oldWarning = input.parentElement.querySelector('.text-error');
+            if (oldWarning) oldWarning.remove();
+            input.style.borderColor = '';
+
+            if (!input.value.trim()) {
+                isValid = false;
+                input.style.borderColor = '#ea4335';
+                const warning = document.createElement('p');
+                warning.className = 'text-error mt-8';
+                warning.textContent = 'Kolom ini wajib diisi.';
+                input.parentElement.appendChild(warning);
+            }
+
+            // Validasi format angka untuk NIK (16) & NISN (10)
+            if (input.id === 'id_nik' && input.value.length !== 16) {
+                isValid = false;
+                input.style.borderColor = '#ea4335';
+                const warning = document.createElement('p');
+                warning.className = 'text-error mt-8';
+                warning.textContent = 'NIK harus tepat 16 digit angka.';
+                input.parentElement.appendChild(warning);
+            }
+            if (input.id === 'id_nisn' && input.value.length !== 10) {
+                isValid = false;
+                input.style.borderColor = '#ea4335';
+                const warning = document.createElement('p');
+                warning.className = 'text-error mt-8';
+                warning.textContent = 'NISN harus tepat 10 digit angka.';
+                input.parentElement.appendChild(warning);
+            }
+        });
+
+        return isValid;
+    }
+
+    // Set dynamic validation for file size in client-side
+    document.querySelectorAll('.form-file input[type="file"]').forEach(fileInput => {
+        fileInput.addEventListener('change', function() {
+            const oldWarning = this.parentElement.querySelector('.text-error');
+            if (oldWarning) oldWarning.remove();
+            
+            if (this.files && this.files[0]) {
+                const size = this.files[0].size;
+                const maxSize = 2 * 1024 * 1024; // 2MB
+                if (size > maxSize) {
+                    const warning = document.createElement('p');
+                    warning.className = 'text-error mt-8';
+                    warning.textContent = 'Ukuran file melebihi batas 2MB.';
+                    this.parentElement.appendChild(warning);
+                    this.value = '';
+                }
+            }
+        });
+    });
+
+    // Dynamic Form Logic untuk Tahap 3 & Tahap 5
+    document.addEventListener('DOMContentLoaded', function() {
+        const jalurSelect = document.getElementById('id_jalur_masuk');
+        const kelasSelect = document.getElementById('id_jenis_kelas');
+        const jurusan1 = document.getElementById('id_jurusan_pilihan1');
+        const jurusan2 = document.getElementById('id_jurusan_pilihan2');
+        const sertifikatField = document.getElementById('id_file_sertifikat');
+        const sertifikatLabel = sertifikatField ? sertifikatField.previousElementSibling : null;
+
+        function updateFormLogic() {
+            if (!jalurSelect) return;
+            
+            const selectedJalurText = jalurSelect.options[jalurSelect.selectedIndex]?.text.toLowerCase() || '';
+            const isJalurSelected = jalurSelect.value !== '';
+            
+            // 1. Sembunyikan/Kunci pilihan prodi sebelum jalur dipilih
+            if (!isJalurSelected) {
+                jurusan1.disabled = true;
+                jurusan2.disabled = true;
+                jurusan1.title = "Pilih Jalur Masuk terlebih dahulu";
+                jurusan2.title = "Pilih Jalur Masuk terlebih dahulu";
+            } else {
+                jurusan1.disabled = false;
+                jurusan2.disabled = false;
+                jurusan1.title = "";
+                jurusan2.title = "";
+            }
+
+            // 2. Kunci Jenis Kelas untuk KIP-K
+            if (selectedJalurText.includes('kip-k') || selectedJalurText.includes('kipk')) {
+                // KIP-K biasanya hanya Reguler
+                for (let i = 0; i < kelasSelect.options.length; i++) {
+                    const opt = kelasSelect.options[i];
+                    if (opt.value === 'karyawan') {
+                        opt.disabled = true;
+                    }
+                }
+                if (kelasSelect.value === 'karyawan') {
+                    kelasSelect.value = 'reguler'; // reset ke reguler
+                }
+            } else {
+                // Enable semua kelas
+                for (let i = 0; i < kelasSelect.options.length; i++) {
+                    kelasSelect.options[i].disabled = false;
+                }
+            }
+
+            // 3. Logika Dokumen Tambahan (Tahap 5)
+            if (sertifikatLabel && sertifikatField) {
+                if (selectedJalurText.includes('prestasi')) {
+                    sertifikatLabel.innerHTML = 'Scan Sertifikat Prestasi <span class="text-error">*</span>';
+                    sertifikatField.required = true;
+                } else if (selectedJalurText.includes('kip-k') || selectedJalurText.includes('kipk')) {
+                    sertifikatLabel.innerHTML = 'Scan Kartu KIP / Surat Keterangan Tidak Mampu <span class="text-error">*</span>';
+                    sertifikatField.required = true;
+                } else if (selectedJalurText.includes('kerjasama')) {
+                    sertifikatLabel.innerHTML = 'Scan Surat Rekomendasi Instansi Mitra <span class="text-error">*</span>';
+                    sertifikatField.required = true;
+                } else {
+                    sertifikatLabel.innerHTML = 'Scan Sertifikat Prestasi (Opsional)';
+                    sertifikatField.required = false;
+                }
+            }
+        }
+
+        if (jalurSelect) {
+            jalurSelect.addEventListener('change', updateFormLogic);
+            // Run on load
+            updateFormLogic();
+        }
+    });
+
+    // AUTO-SAVE DRAFT LOGIC
+    document.addEventListener('DOMContentLoaded', function() {
+        const formId = 'pendaftaran-form';
+        const draftKey = 'pmb_form_draft_data';
+        const stepKey = 'pmb_form_current_step';
+        const form = document.getElementById(formId);
+
+        if (!form) return;
+
+        // 1. Restore Data
+        const savedData = localStorage.getItem(draftKey);
+        if (savedData) {
+            try {
+                const data = JSON.parse(savedData);
+                for (const key in data) {
+                    const input = form.querySelector(`[name="${key}"]`);
+                    if (input && input.type !== 'file' && input.type !== 'hidden') {
+                        // Jangan override jika Django mengisi data (misal saat validasi gagal)
+                        // Kecuali jika input tersebut masih kosong
+                        if (!input.value || input.tagName === 'SELECT') {
+                            input.value = data[key];
+                        }
+                    }
+                }
+                // Trigger change event to update dependencies
+                const jalurSelect = document.getElementById('id_jalur_masuk');
+                if (jalurSelect) {
+                    const event = new Event('change');
+                    jalurSelect.dispatchEvent(event);
+                }
+            } catch (e) {
+                console.error("Error loading draft", e);
+            }
+        }
+
+        // 2. Restore Step
+        const savedStep = localStorage.getItem(stepKey);
+        if (savedStep) {
+            const stepNum = parseInt(savedStep, 10);
+            if (stepNum > 1 && stepNum <= 5) {
+                // Bypass validation when just restoring view
+                // We directly show the panel instead of using goToStep which validates
+                document.getElementById('step-panel-1').style.display = 'none';
+                document.getElementById('w-step-1').classList.remove('active');
+                
+                for(let i=1; i<stepNum; i++) {
+                    document.getElementById(`w-step-${i}`).classList.add('completed');
+                }
+
+                document.getElementById(`step-panel-${stepNum}`).style.display = 'block';
+                document.getElementById(`w-step-${stepNum}`).classList.add('active');
+                document.getElementById(`w-step-${stepNum}`).classList.remove('completed');
+                
+                const progressPercent = ((stepNum - 1) / (4)) * 100;
+                document.getElementById('progress-line').style.width = `${progressPercent}%`;
+                currentStep = stepNum;
+            }
+        }
+
+        // 3. Save Data on Input
+        form.addEventListener('input', function(e) {
+            if (e.target.type !== 'file' && e.target.type !== 'hidden') {
+                const formData = new FormData(form);
+                const dataObj = {};
+                for (let [key, value] of formData.entries()) {
+                    // Hanya simpan field teks/select, bukan file
+                    if (typeof value === 'string' && !key.includes('csrfmiddlewaretoken')) {
+                        dataObj[key] = value;
+                    }
+                }
+                localStorage.setItem(draftKey, JSON.stringify(dataObj));
+            }
+        });
+
+        // 4. Save Step on Change
+        // Override goToStep to save the step
+        const originalGoToStep = window.goToStep;
+        window.goToStep = function(step) {
+            if (step > currentStep && !validateStep(currentStep)) {
+                return;
+            }
+            originalGoToStep(step);
+            localStorage.setItem(stepKey, step);
+        };
+    });
+</script>
+{% endblock %}

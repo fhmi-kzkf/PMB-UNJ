@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Data Pendaftar - Admin PMB UNJ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">Admin Panel</h2>
+            <p class="sidebar-role">{{ user.profile.get_role_display }}</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'dashboard:home' %}" class="sidebar-link">Ikhtisar</a>
+            <a href="{% url 'dashboard:pendaftar_list' %}" class="sidebar-link active">Data Pendaftar</a>
+            <a href="{% url 'dashboard:kelola_kuota' %}" class="sidebar-link">Kelola Kuota Prodi</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Data Pendaftar</h1>
+            <a href="{% url 'dashboard:export_csv' %}?jurusan={{ filter_jurusan }}&status={{ filter_status }}" class="btn btn-outlined">Export CSV Terfilter</a>
+        </div>
+
+        <!-- Filter Panel -->
+        <div class="filter-panel card-elevated mb-32">
+            <form method="get" class="filter-form">
+                <div class="form-row">
+                    <div class="form-group col-3">
+                        <label class="form-label text-sm">Program Studi</label>
+                        <select name="jurusan" class="form-input form-select form-sm">
+                            <option value="">Semua Program Studi</option>
+                            {% for j in jurusan_list %}
+                            <option value="{{ j.id }}" {% if filter_jurusan == j.id|stringformat:"s" %}selected{% endif %}>{{ j.nama_jurusan }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group col-3">
+                        <label class="form-label text-sm">Status Seleksi</label>
+                        <select name="status" class="form-input form-select form-sm">
+                            <option value="">Semua Status</option>
+                            <option value="menunggu" {% if filter_status == 'menunggu' %}selected{% endif %}>Menunggu</option>
+                            <option value="lulus" {% if filter_status == 'lulus' %}selected{% endif %}>Lulus</option>
+                            <option value="cadangan" {% if filter_status == 'cadangan' %}selected{% endif %}>Cadangan</option>
+                            <option value="tidak_lulus" {% if filter_status == 'tidak_lulus' %}selected{% endif %}>Tidak Lulus</option>
+                        </select>
+                    </div>
+                    <div class="form-group col-3">
+                        <label class="form-label text-sm">Pencarian</label>
+                        <input type="text" name="q" value="{{ filter_search }}" placeholder="Nama, NISN, No Reg..." class="form-input form-sm">
+                    </div>
+                    <div class="form-group col-3 filter-actions">
+                        <button type="submit" class="btn btn-cta btn-sm btn-full">Filter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!-- Data Table -->
+        <div class="dashboard-card card-elevated">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>No. Registrasi</th>
+                            <th>Nama Lengkap</th>
+                            <th>Pilihan 1</th>
+                            <th>Skor</th>
+                            <th>Dokumen</th>
+                            <th>Status Seleksi</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for p in pendaftar_list %}
+                        <tr>
+                            <td class="font-bold">{{ p.no_registrasi }}</td>
+                            <td>
+                                {{ p.nama_lengkap }}<br>
+                                <span class="text-caption text-muted">NISN: {{ p.nisn }}</span>
+                            </td>
+                            <td>{{ p.jurusan_pilihan1.nama_jurusan }}</td>
+                            <td>{{ p.skor_akhir|default:"-" }}</td>
+                            <td>{{ p.jumlah_dokumen }} file</td>
+                            <td>
+                                <span class="badge status-{{ p.status_seleksi }}">{{ p.get_status_seleksi_display }}</span>
+                            </td>
+                            <td>
+                                <a href="{% url 'dashboard:detail_pendaftar' p.id %}" class="btn btn-ghost btn-sm">Detail & Verifikasi</a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center py-32 text-muted">Tidak ada data pendaftar yang sesuai filter.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="text-caption text-muted mt-16">Menampilkan {{ pendaftar_list|length }} data.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Daftar Akun - PMB UNJ{% endblock %}
+
+{% block content %}
+<section class="section-dark auth-section" id="register-section">
+    <div class="auth-wrapper">
+        <div class="auth-panel" id="register-panel">
+            <h2 class="auth-title">Buat Akun PMB</h2>
+            <p class="auth-desc">Disfruta 7 hari... tunggu, ini PMB UNJ. Mulai langkah pertamamu menuju masa depan cerah.</p>
+
+            <form method="post" class="auth-form" id="register-form">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {% for error in form.non_field_errors %}
+                    <p class="text-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="{{ form.nama_lengkap.id_for_label }}" class="form-label">{{ form.nama_lengkap.label }}</label>
+                    {{ form.nama_lengkap }}
+                    {% if form.nama_lengkap.errors %}
+                        <p class="text-error">{{ form.nama_lengkap.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.email.id_for_label }}" class="form-label">{{ form.email.label }}</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}
+                        <p class="text-error">{{ form.email.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+
+
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <p class="text-error">{{ form.password.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password_confirm.id_for_label }}" class="form-label">{{ form.password_confirm.label }}</label>
+                    {{ form.password_confirm }}
+                    {% if form.password_confirm.errors %}
+                        <p class="text-error">{{ form.password_confirm.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-cta btn-full" id="btn-submit-register">Daftar Akun</button>
+            </form>
+
+            <div class="auth-footer">
+                <p class="auth-fineprint">Dengan mendaftar, Anda menyetujui Syarat dan Ketentuan Universitas Nusantara Jaya.</p>
+                <a href="{% url 'accounts:login' %}" class="btn btn-ghost" id="link-to-login">Sudah punya akun? Masuk</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

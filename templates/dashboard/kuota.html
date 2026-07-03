@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Kelola Kuota Prodi - Admin PMB UNJ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">Admin Panel</h2>
+            <p class="sidebar-role">{{ user.profile.get_role_display }}</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'dashboard:home' %}" class="sidebar-link">Ikhtisar</a>
+            <a href="{% url 'dashboard:pendaftar_list' %}" class="sidebar-link">Data Pendaftar</a>
+            <a href="{% url 'dashboard:kelola_kuota' %}" class="sidebar-link active">Kelola Kuota Prodi</a>
+        </nav>
+    </aside>
+
+    <div class="dashboard-main">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Kelola Kuota Program Studi</h1>
+        </div>
+
+        <div class="dashboard-card card-elevated">
+            <p class="text-caption text-muted mb-24">
+                Atur kuota utama (untuk status Lulus) dan kuota cadangan untuk masing-masing program studi.
+            </p>
+
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Program Studi</th>
+                            <th>Akreditasi</th>
+                            <th>Jml Pendaftar</th>
+                            <th>Kuota Utama</th>
+                            <th>Kuota Cadangan</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for j in jurusan_list %}
+                        <tr>
+                            <form method="post" action="{% url 'dashboard:kelola_kuota' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="jurusan_id" value="{{ j.id }}">
+                                
+                                <td class="font-bold">{{ j.nama_jurusan }}</td>
+                                <td>{{ j.akreditasi }}</td>
+                                <td>{{ j.jumlah_pendaftar }}</td>
+                                <td>
+                                    <input type="number" name="kuota" value="{{ j.kuota }}" min="0" class="form-input form-sm" style="width: 80px;">
+                                </td>
+                                <td>
+                                    <input type="number" name="kuota_cadangan" value="{{ j.kuota_cadangan }}" min="0" class="form-input form-sm" style="width: 80px;">
+                                </td>
+                                <td>
+                                    <button type="submit" class="btn btn-cta btn-sm">Simpan</button>
+                                </td>
+                            </form>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

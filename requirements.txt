@@ -1,0 +1,8 @@
+Django>=4.2,<5.0
+python-dotenv>=1.0.0
+xhtml2pdf>=0.2.11
+openpyxl>=3.1.2
+Pillow>=10.0.0
+django-debug-toolbar>=4.2.0
+pytest-django>=4.7.0
+mysqlclient==2.2.4

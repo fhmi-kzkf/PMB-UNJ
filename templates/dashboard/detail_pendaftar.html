@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Detail Pendaftar - Admin PMB UNJ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">Admin Panel</h2>
+            <p class="sidebar-role">{{ user.profile.get_role_display }}</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'dashboard:home' %}" class="sidebar-link">Ikhtisar</a>
+            <a href="{% url 'dashboard:pendaftar_list' %}" class="sidebar-link active">Data Pendaftar</a>
+            <a href="{% url 'dashboard:kelola_kuota' %}" class="sidebar-link">Kelola Kuota Prodi</a>
+        </nav>
+    </aside>
+
+    <div class="dashboard-main">
+        <div class="dashboard-header">
+            <div class="header-with-back">
+                <a href="{% url 'dashboard:pendaftar_list' %}" class="btn btn-ghost btn-sm">← Kembali</a>
+                <h1 class="dashboard-title">Detail Pendaftar</h1>
+            </div>
+            <div class="dashboard-actions">
+                <!-- Tombol ACC jika dokumen valid -->
+                {% if semua_dokumen_valid and pendaftar.status_seleksi != 'lulus' %}
+                <form method="post" action="{% url 'dashboard:acc_pendaftar' pendaftar.id %}" class="inline-form" onsubmit="return confirm('ACC pendaftar ini dan tetapkan status menjadi Lulus?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-cta btn-sm">✔ ACC / Luluskan</button>
+                </form>
+                {% endif %}
+
+                <!-- Ubah Status Bayar Toggle -->
+                <form method="post" action="{% url 'dashboard:update_status_bayar' pendaftar.id %}" class="inline-form">
+                    {% csrf_token %}
+                    {% if pendaftar.status_bayar == 'belum_lunas' %}
+                        <input type="hidden" name="status" value="lunas">
+                        <button type="submit" class="btn btn-outlined btn-sm text-success border-success">Set Lunas</button>
+                    {% else %}
+                        <input type="hidden" name="status" value="belum_lunas">
+                        <button type="submit" class="btn btn-outlined btn-sm text-warning border-warning">Batal Lunas</button>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Left Column: Biodata -->
+            <div class="dashboard-column">
+                <div class="dashboard-card card-elevated">
+                    <h3 class="card-title">Biodata & Akademik</h3>
+                    
+                    <table class="table-detail">
+                        <tr>
+                            <td class="td-label">No. Registrasi</td>
+                            <td class="font-bold text-accent">{{ pendaftar.no_registrasi }}</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Nama Lengkap</td>
+                            <td>{{ pendaftar.nama_lengkap }}</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">NIK / NISN</td>
+                            <td>{{ pendaftar.nik }} / {{ pendaftar.nisn }}</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Tempat, Tgl Lahir</td>
+                            <td>{{ pendaftar.tempat_lahir }}, {{ pendaftar.tanggal_lahir|date:"d M Y" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Email / HP</td>
+                            <td>{{ pendaftar.email }} / {{ pendaftar.no_hp }}</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Alamat</td>
+                            <td>{{ pendaftar.alamat }}</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Asal Sekolah</td>
+                            <td>{{ pendaftar.asal_sekolah }} ({{ pendaftar.jurusan_sekolah }} · Lulus {{ pendaftar.tahun_lulus }})</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Nilai Akademik (Rapor)</td>
+                            <td>{{ pendaftar.nilai_akademik|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Nilai Ujian / Tes</td>
+                            <td>
+                                <form method="post" action="{% url 'dashboard:run_seleksi' %}" class="inline-form" style="display: flex; gap: 8px;">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="jurusan_id" value="{{ pendaftar.jurusan_pilihan1.id }}">
+                                    <!-- Display or quick input if needed, showing current value -->
+                                    <span><strong>{{ pendaftar.nilai_tes|default:"0.00" }}</strong></span>
+                                </form>
+                            </td>
+                        </tr>
+                        <tr class="highlight-row">
+                            <td class="td-label">Skor Akhir</td>
+                            <td class="font-bold">{{ pendaftar.skor_akhir|default:"Belum dihitung" }}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="dashboard-card card-elevated mt-24">
+                    <h3 class="card-title">Data Orang Tua / Wali</h3>
+                    
+                    <table class="table-detail">
+                        <tr>
+                            <td class="td-label">Nama Ayah / Ibu</td>
+                            <td>{{ pendaftar.nama_ayah }} / {{ pendaftar.nama_ibu }}</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">No. HP Orang Tua</td>
+                            <td>{{ pendaftar.no_hp_ortu }}</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Pekerjaan Wali</td>
+                            <td>{{ pendaftar.get_pekerjaan_ortu_display|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Penghasilan Wali</td>
+                            <td>{{ pendaftar.get_penghasilan_ortu_display|default:"-" }}</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="dashboard-card card-elevated mt-24">
+                    <h3 class="card-title">Pilihan & Status</h3>
+                    
+                    <table class="table-detail">
+                        <tr>
+                            <td class="td-label">Jalur Masuk / Kelas</td>
+                            <td>{{ pendaftar.jalur_masuk.nama_jalur }} ({{ pendaftar.get_jenis_kelas_display }})</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Pilihan 1</td>
+                            <td>{{ pendaftar.jurusan_pilihan1.nama_jurusan }}</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Pilihan 2</td>
+                            <td>{{ pendaftar.jurusan_pilihan2.nama_jurusan|default:"-" }}</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Status Seleksi</td>
+                            <td><span class="badge status-{{ pendaftar.status_seleksi }}">{{ pendaftar.get_status_seleksi_display }}</span></td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Status Bayar</td>
+                            <td>
+                                <span class="badge {% if pendaftar.status_bayar == 'lunas' %}status-lulus{% else %}status-menunggu{% endif %}">
+                                    {{ pendaftar.get_status_bayar_display }}
+                                </span>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right Column: Documents -->
+            <div class="dashboard-column">
+                <div class="dashboard-card card-elevated">
+                    <h3 class="card-title">Verifikasi Dokumen</h3>
+                    <p class="text-caption text-muted mb-16">Periksa dokumen yang diunggah oleh pendaftar.</p>
+
+                    {% for doc in dokumen_list %}
+                    <div class="doc-verify-card">
+                        <div class="doc-verify-header">
+                            <span class="doc-type">{{ doc.get_jenis_dokumen_display }}</span>
+                            <span class="badge status-{{ doc.status_verifikasi }}">{{ doc.get_status_verifikasi_display }}</span>
+                        </div>
+                        <div class="doc-verify-actions">
+                            <a href="{{ doc.file.url }}" target="_blank" class="btn btn-outlined btn-sm">Lihat Dokumen</a>
+                            
+                            <form method="post" action="{% url 'dashboard:verifikasi_dokumen' doc.id %}" class="inline-form">
+                                {% csrf_token %}
+                                {% if doc.status_verifikasi != 'terverifikasi' %}
+                                    <input type="hidden" name="status" value="terverifikasi">
+                                    <button type="submit" class="btn btn-ghost btn-sm text-success">✔ Terima</button>
+                                {% endif %}
+                            </form>
+                            
+                            <form method="post" action="{% url 'dashboard:verifikasi_dokumen' doc.id %}" class="inline-form">
+                                {% csrf_token %}
+                                {% if doc.status_verifikasi != 'ditolak' %}
+                                    <input type="hidden" name="status" value="ditolak">
+                                    <button type="submit" class="btn btn-ghost btn-sm text-error">✖ Tolak</button>
+                                {% endif %}
+                            </form>
+                        </div>
+                        <p class="text-caption mt-8 text-muted">Diunggah pada: {{ doc.uploaded_at|date:"d M Y H:i" }}</p>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center py-24">Belum ada dokumen yang diunggah.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}

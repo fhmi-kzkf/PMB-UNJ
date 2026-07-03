@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Dashboard Admin - PMB UNJ{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="dashboard-sidebar">
+        <div class="sidebar-header">
+            <h2 class="sidebar-title">Admin Panel</h2>
+            <p class="sidebar-role">{{ user.profile.get_role_display }}</p>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{% url 'dashboard:home' %}" class="sidebar-link active">Ikhtisar</a>
+            <a href="{% url 'dashboard:pendaftar_list' %}" class="sidebar-link">Data Pendaftar</a>
+            <a href="{% url 'dashboard:kelola_kuota' %}" class="sidebar-link">Kelola Kuota Prodi</a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="dashboard-main">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Ikhtisar Penerimaan</h1>
+            <div class="dashboard-actions">
+                <form method="post" action="{% url 'dashboard:run_seleksi' %}" onsubmit="return confirm('Jalankan seleksi untuk SEMUA jurusan? Proses ini akan meranking semua pendaftar dan menetapkan status kelulusan.');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-cta">Jalankan Seleksi Massal</button>
+                </form>
+                <a href="{% url 'dashboard:export_csv' %}" class="btn btn-outlined">Export Semua (CSV)</a>
+            </div>
+        </div>
+
+        <!-- Warning for pending verifications -->
+        {% if dokumen_pending > 0 %}
+        <div class="alert alert-warning mb-32">
+            <span class="alert-text">Terdapat <strong>{{ dokumen_pending }} dokumen</strong> yang belum diverifikasi. Harap selesaikan verifikasi sebelum menjalankan seleksi.</span>
+            <a href="{% url 'dashboard:pendaftar_list' %}" class="btn btn-ghost btn-sm">Lihat Pendaftar</a>
+        </div>
+        {% endif %}
+
+        <!-- Top Stats Row -->
+        <div class="stats-grid dashboard-stats">
+            <div class="stat-card stat-dark">
+                <span class="stat-value text-accent">{{ total_pendaftar }}</span>
+                <span class="stat-label">TOTAL PENDAFTAR</span>
+            </div>
+            <div class="stat-card stat-dark">
+                <span class="stat-value text-success">{{ stats_seleksi.lulus }}</span>
+                <span class="stat-label">LULUS SELEKSI</span>
+            </div>
+            <div class="stat-card stat-dark">
+                <span class="stat-value text-warning">{{ stats_seleksi.cadangan }}</span>
+                <span class="stat-label">CADANGAN</span>
+            </div>
+            <div class="stat-card stat-dark">
+                <span class="stat-value">{{ stats_seleksi.menunggu }}</span>
+                <span class="stat-label">MENUNGGU SELEKSI</span>
+            </div>
+        </div>
+
+        <div class="dashboard-grid mt-48">
+            <!-- Left: Prodi Stats -->
+            <div class="dashboard-card card-elevated">
+                <h3 class="card-title">Pendaftar per Program Studi (Pilihan 1)</h3>
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Program Studi</th>
+                                <th>Kuota</th>
+                                <th>Jumlah Pendaftar</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for jurusan in jurusan_stats %}
+                            <tr>
+                                <td>{{ jurusan.nama_jurusan }}</td>
+                                <td>{{ jurusan.kuota }}</td>
+                                <td><strong>{{ jurusan.jumlah_pendaftar }}</strong></td>
+                                <td>
+                                    {% if jurusan.jumlah_pendaftar > jurusan.kuota %}
+                                    <span class="badge badge-warning">Melebihi Kuota</span>
+                                    {% else %}
+                                    <span class="badge badge-success">Aman</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Right: Payment Stats -->
+            <div class="dashboard-card card-elevated">
+                <h3 class="card-title">Status Pembayaran Daftar Ulang</h3>
+                <div class="payment-stats">
+                    <div class="payment-stat-item">
+                        <span class="payment-label">Lunas</span>
+                        <span class="payment-value text-success">{{ stats_bayar.lunas }}</span>
+                    </div>
+                    <div class="payment-stat-item">
+                        <span class="payment-label">Belum Lunas</span>
+                        <span class="payment-value text-warning">{{ stats_bayar.belum_lunas }}</span>
+                    </div>
+                </div>
+                <p class="text-caption mt-16 text-muted">Status pembayaran diubah manual oleh admin setelah verifikasi bukti transfer.</p>
+                <a href="{% url 'dashboard:pendaftar_list' %}" class="btn btn-outlined btn-full mt-24">Kelola Pembayaran</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %} <!-- Hide public footer in dashboard -->

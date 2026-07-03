@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+{% block title %}Upload Dokumen - PMB UNJ{% endblock %}
+
+{% block content %}
+<section class="section-light form-section" id="upload-form-section">
+    <div class="container container-sm">
+        <div class="form-header">
+            <h1 class="form-title">Upload Dokumen</h1>
+            <p class="form-subtitle">Unggah dokumen persyaratan untuk verifikasi.</p>
+            <div class="progress-bar">
+                <div class="progress-step completed">1. Formulir</div>
+                <div class="progress-step active">2. Upload Dokumen</div>
+                <div class="progress-step">3. Selesai</div>
+            </div>
+        </div>
+
+        <div class="upload-container">
+            <!-- Daftar Dokumen yang Sudah Diupload -->
+            <div class="uploaded-list">
+                <h3 class="subsection-title">Dokumen Terunggah</h3>
+                {% if dokumen_list %}
+                    <ul class="doc-list">
+                    {% for doc in dokumen_list %}
+                        <li class="doc-item">
+                            <div class="doc-info">
+                                <span class="doc-type">{{ doc.get_jenis_dokumen_display }}</span>
+                                <span class="doc-status status-{{ doc.status_verifikasi }}">
+                                    {{ doc.get_status_verifikasi_display }}
+                                </span>
+                            </div>
+                            <a href="{{ doc.file.url }}" target="_blank" class="btn btn-outlined btn-sm">Lihat File</a>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">Belum ada dokumen yang diunggah.</p>
+                {% endif %}
+            </div>
+
+            <!-- Form Upload Baru -->
+            <div class="upload-form-wrapper">
+                <h3 class="subsection-title">Unggah Dokumen Baru</h3>
+                <p class="text-caption">Format yang didukung: PDF, JPG, PNG (Maksimal 2MB).</p>
+                
+                <form method="post" enctype="multipart/form-data" class="app-form" id="upload-form">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        {% for error in form.non_field_errors %}
+                        <p class="text-error">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="{{ form.jenis_dokumen.id_for_label }}" class="form-label">{{ form.jenis_dokumen.label }}</label>
+                        {{ form.jenis_dokumen }}
+                        {{ form.jenis_dokumen.errors }}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ form.file.id_for_label }}" class="form-label">{{ form.file.label }}</label>
+                        {{ form.file }}
+                        {{ form.file.errors }}
+                    </div>
+
+                    <button type="submit" class="btn btn-outlined btn-full" id="btn-submit-upload">Upload Dokumen</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="form-actions form-actions-spaced">
+            <a href="{% url 'pendaftaran:bukti' %}" class="btn btn-cta btn-lg" id="btn-finish-upload">Selesai & Lihat Bukti →</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

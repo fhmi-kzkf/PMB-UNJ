@@ -1,0 +1,244 @@
+{% extends 'base.html' %}
+
+{% block title %}Bukti Pendaftaran - PMB UNJ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .bukti-card {
+        background: var(--color-pure-white);
+        border: 1px solid var(--color-fog-border);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        box-shadow: var(--shadow-sm);
+        margin: var(--spacing-32) 0;
+    }
+    
+    .bukti-header {
+        padding: var(--spacing-32);
+        text-align: center;
+        background: var(--color-studio-black);
+        color: var(--color-pure-white);
+    }
+    
+    .bukti-header h2 {
+        margin: 0 0 8px 0;
+        font-size: 26px;
+        letter-spacing: 1.5px;
+    }
+    
+    .bukti-header p {
+        margin: 0;
+        color: #a0a0a0;
+        font-size: 15px;
+    }
+
+    .bukti-body {
+        padding: var(--spacing-32) var(--spacing-48);
+    }
+
+    .bukti-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-bottom: var(--spacing-16);
+        border-bottom: 2px dashed var(--color-fog-border);
+        margin-bottom: var(--spacing-32);
+    }
+
+    .highlight-row .bukti-label {
+        font-size: 16px;
+        font-weight: 600;
+        color: var(--color-ash-mid);
+    }
+    
+    .highlight-row .bukti-value {
+        font-size: 24px;
+    }
+
+    .bukti-section-title {
+        font-size: 16px;
+        color: var(--color-deep-ink);
+        border-left: 4px solid var(--color-skill-green);
+        padding-left: var(--spacing-12);
+        margin: var(--spacing-32) 0 var(--spacing-24) 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .bukti-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: var(--spacing-24);
+    }
+
+    .bukti-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .bukti-label {
+        font-size: 12px;
+        text-transform: uppercase;
+        color: var(--color-ash-mid);
+        font-weight: 600;
+        margin-bottom: 6px;
+        letter-spacing: 0.05em;
+    }
+
+    .bukti-value {
+        font-size: 15px;
+        color: var(--color-studio-black);
+        font-weight: 600;
+    }
+
+    .doc-status-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-12);
+    }
+
+    .doc-status-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-16);
+        background: #fcfcfc;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-fog-border);
+    }
+
+    .doc-type {
+        font-weight: 600;
+        color: var(--color-deep-ink);
+    }
+
+    .doc-status {
+        font-size: 12px;
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 20px;
+        text-transform: uppercase;
+    }
+
+    .status-belum_diverifikasi { background: #fdf3c7; color: #a47c00; }
+    .status-valid { background: #dcfce7; color: #166534; }
+    .status-tidak_valid { background: #fee2e2; color: #991b1b; }
+
+    .bukti-footer {
+        padding: var(--spacing-16) var(--spacing-48);
+        background: #f8f9fa;
+        text-align: right;
+        font-size: 13px;
+        color: var(--color-ash-mid);
+        border-top: 1px solid var(--color-fog-border);
+    }
+    
+    @media (max-width: 768px) {
+        .bukti-body { padding: var(--spacing-24); }
+        .bukti-footer { padding: var(--spacing-16) var(--spacing-24); text-align: center; }
+        .doc-status-list li { flex-direction: column; align-items: flex-start; gap: 8px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section-light bukti-section" id="bukti-section">
+    <div class="container container-sm">
+        <div class="form-header">
+            <h1 class="form-title">Bukti Pendaftaran</h1>
+            <p class="form-subtitle">Pendaftaran Anda telah berhasil disubmit.</p>
+            <div class="progress-bar">
+                <div class="progress-step completed">1. Formulir</div>
+                <div class="progress-step completed">2. Upload Dokumen</div>
+                <div class="progress-step active">3. Selesai</div>
+            </div>
+        </div>
+
+        <div class="bukti-card">
+            <div class="bukti-header section-dark">
+                <h2>KARTU BUKTI PENDAFTARAN</h2>
+                <p>PMB Universitas Nusantara Jaya 2026</p>
+            </div>
+            
+            <div class="bukti-body">
+                <div class="bukti-row highlight-row">
+                    <span class="bukti-label">No. Registrasi</span>
+                    <span class="bukti-value text-accent font-bold">{{ pendaftar.no_registrasi }}</span>
+                </div>
+                
+                <h3 class="bukti-section-title">Data Pribadi</h3>
+                <div class="bukti-grid">
+                    <div class="bukti-item">
+                        <span class="bukti-label">Nama Lengkap</span>
+                        <span class="bukti-value">{{ pendaftar.nama_lengkap }}</span>
+                    </div>
+                    <div class="bukti-item">
+                        <span class="bukti-label">NIK / NISN</span>
+                        <span class="bukti-value">{{ pendaftar.nik }} / {{ pendaftar.nisn }}</span>
+                    </div>
+                    <div class="bukti-item">
+                        <span class="bukti-label">Tempat, Tgl Lahir</span>
+                        <span class="bukti-value">{{ pendaftar.tempat_lahir|default:"-" }}, {{ pendaftar.tanggal_lahir|date:"d M Y"|default:"-" }}</span>
+                    </div>
+                    <div class="bukti-item">
+                        <span class="bukti-label">Asal Sekolah</span>
+                        <span class="bukti-value">{{ pendaftar.asal_sekolah|default:"-" }}</span>
+                    </div>
+                </div>
+
+                <h3 class="bukti-section-title">Pilihan Program Studi</h3>
+                <div class="bukti-grid">
+                    <div class="bukti-item">
+                        <span class="bukti-label">Jalur Masuk</span>
+                        <span class="bukti-value">{{ pendaftar.jalur_masuk.nama_jalur }}</span>
+                    </div>
+                    <div class="bukti-item">
+                        <span class="bukti-label">Pilihan 1</span>
+                        <span class="bukti-value">{{ pendaftar.jurusan_pilihan1.nama_jurusan }}</span>
+                    </div>
+                    <div class="bukti-item">
+                        <span class="bukti-label">Pilihan 2</span>
+                        <span class="bukti-value">{{ pendaftar.jurusan_pilihan2.nama_jurusan|default:"-" }}</span>
+                    </div>
+                </div>
+
+                <h3 class="bukti-section-title">Status Dokumen</h3>
+                <ul class="doc-status-list">
+                    {% for doc in dokumen_list %}
+                    <li>
+                        <span class="doc-type">{{ doc.get_jenis_dokumen_display }}</span>
+                        <span class="doc-status status-{{ doc.status_verifikasi }}">
+                            {{ doc.get_status_verifikasi_display }}
+                        </span>
+                    </li>
+                    {% empty %}
+                    <li>Belum ada dokumen yang diunggah.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            
+            <div class="bukti-footer">
+                <p>Dicetak pada: {% now "d M Y H:i" %}</p>
+            </div>
+        </div>
+
+        <div class="form-actions form-actions-spaced">
+            <a href="{% url 'pendaftaran:bukti' %}?format=pdf" class="btn btn-outlined btn-lg" target="_blank">Download PDF</a>
+            <a href="{% url 'pendaftaran:status' %}" class="btn btn-cta btn-lg">Ke Halaman Status</a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Pendaftaran telah sukses, bersihkan draf form dari memori lokal (localStorage)
+    document.addEventListener('DOMContentLoaded', function() {
+        localStorage.removeItem('pmb_form_draft_data');
+        localStorage.removeItem('pmb_form_current_step');
+    });
+</script>
+{% endblock %}

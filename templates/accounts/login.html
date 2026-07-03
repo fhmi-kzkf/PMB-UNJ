@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Masuk - PMB UNJ{% endblock %}
+
+{% block content %}
+<section class="section-dark auth-section" id="login-section">
+    <div class="auth-wrapper">
+        <div class="auth-panel" id="login-panel">
+            <h2 class="auth-title">Masuk ke PMB</h2>
+            <p class="auth-desc">Lanjutkan pendaftaran atau cek status seleksi Anda.</p>
+
+            <form method="post" class="auth-form" id="login-form">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                <div class="form-errors">
+                    {% for error in form.non_field_errors %}
+                    <p class="text-error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}" class="form-label">{{ form.username.label }}</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <p class="text-error">{{ form.username.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}" class="form-label">{{ form.password.label }}</label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <p class="text-error">{{ form.password.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-cta btn-full" id="btn-submit-login">Masuk</button>
+            </form>
+
+            <div class="auth-footer">
+                <a href="{% url 'accounts:register' %}" class="btn btn-ghost" id="link-to-register">Belum punya akun? Daftar</a>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

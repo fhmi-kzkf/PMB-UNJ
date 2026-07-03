@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Kartu Bukti Pendaftaran</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2cm;
+        }
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            color: #000;
+            line-height: 1.5;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0;
+        }
+        .subtitle {
+            font-size: 14px;
+            margin: 5px 0 0 0;
+        }
+        .info-box {
+            border: 1px solid #000;
+            padding: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+        .info-box h2 {
+            margin: 0;
+            font-size: 16px;
+        }
+        .info-box p {
+            margin: 5px 0 0 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .section-title {
+            font-weight: bold;
+            font-size: 14px;
+            background-color: #e0e0e0;
+            padding: 5px;
+            margin-top: 15px;
+            margin-bottom: 10px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td {
+            padding: 5px;
+            vertical-align: top;
+        }
+        .label {
+            width: 30%;
+            font-weight: bold;
+        }
+        .value {
+            width: 70%;
+        }
+        .footer {
+            margin-top: 40px;
+            font-size: 12px;
+            text-align: center;
+            color: #666;
+            border-top: 1px solid #ccc;
+            padding-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">KARTU BUKTI PENDAFTARAN MAHASISWA BARU</h1>
+        <p class="subtitle">Universitas Nusantara Jaya - Tahun 2026</p>
+    </div>
+
+    <div class="info-box">
+        <h2>NOMOR REGISTRASI</h2>
+        <p>{{ pendaftar.no_registrasi }}</p>
+    </div>
+
+    <div class="section-title">A. DATA PRIBADI</div>
+    <table>
+        <tr>
+            <td class="label">Nama Lengkap</td>
+            <td class="value">: {{ pendaftar.nama_lengkap }}</td>
+        </tr>
+        <tr>
+            <td class="label">NIK</td>
+            <td class="value">: {{ pendaftar.nik }}</td>
+        </tr>
+        <tr>
+            <td class="label">NISN</td>
+            <td class="value">: {{ pendaftar.nisn }}</td>
+        </tr>
+        <tr>
+            <td class="label">Tempat, Tgl Lahir</td>
+            <td class="value">: {{ pendaftar.tempat_lahir|default:"-" }}, {{ pendaftar.tanggal_lahir|date:"d M Y"|default:"-" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Asal Sekolah</td>
+            <td class="value">: {{ pendaftar.asal_sekolah|default:"-" }}</td>
+        </tr>
+        <tr>
+            <td class="label">Alamat</td>
+            <td class="value">: {{ pendaftar.alamat|default:"-" }}</td>
+        </tr>
+        <tr>
+            <td class="label">No. HP</td>
+            <td class="value">: {{ pendaftar.no_hp|default:"-" }}</td>
+        </tr>
+    </table>
+
+    <div class="section-title">B. PILIHAN PROGRAM STUDI</div>
+    <table>
+        <tr>
+            <td class="label">Jalur Masuk</td>
+            <td class="value">: {{ pendaftar.jalur_masuk.nama_jalur }}</td>
+        </tr>
+        <tr>
+            <td class="label">Pilihan 1</td>
+            <td class="value">: {{ pendaftar.jurusan_pilihan1.nama_jurusan }}</td>
+        </tr>
+        <tr>
+            <td class="label">Pilihan 2</td>
+            <td class="value">: {{ pendaftar.jurusan_pilihan2.nama_jurusan|default:"-" }}</td>
+        </tr>
+    </table>
+
+    <div class="section-title">C. DOKUMEN TERUNGGAH</div>
+    <table>
+        {% for doc in dokumen_list %}
+        <tr>
+            <td class="label">- {{ doc.get_jenis_dokumen_display }}</td>
+            <td class="value">({{ doc.get_status_verifikasi_display }})</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="2">Belum ada dokumen.</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <div class="footer">
+        Dicetak pada sistem PMB UNJ secara otomatis. Kartu ini adalah bukti sah pendaftaran.
+    </div>
+</body>
+</html>

@@ -1,0 +1,258 @@
+{% extends 'base.html' %}
+
+{% block title %}Status Pendaftaran - PMB UNJ{% endblock %}
+
+{% block extra_css %}
+<style>
+    .status-section {
+        padding: var(--spacing-48) 0;
+    }
+
+    .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-48);
+        border-bottom: 2px solid var(--color-fog-border);
+        padding-bottom: var(--spacing-16);
+    }
+    
+    .dashboard-title {
+        font-size: 28px;
+        color: var(--color-studio-black);
+        margin: 0;
+        letter-spacing: -0.5px;
+    }
+
+    .status-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--spacing-32);
+    }
+
+    .card-elevated {
+        background: var(--color-pure-white);
+        border: 1px solid var(--color-fog-border);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-32);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        display: flex;
+        flex-direction: column;
+        margin-bottom: var(--spacing-24);
+    }
+
+    .card-title {
+        font-size: 18px;
+        color: var(--color-deep-ink);
+        margin: 0 0 var(--spacing-24) 0;
+        border-bottom: 1px dashed var(--color-fog-border);
+        padding-bottom: var(--spacing-12);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-badge-large {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--spacing-12) var(--spacing-32);
+        border-radius: 30px;
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        margin: var(--spacing-16) 0;
+        width: max-content;
+        align-self: flex-start;
+    }
+
+    /* Badge Colors */
+    .status-menunggu { background: #fdf3c7; color: #a47c00; }
+    .status-lulus { background: #dcfce7; color: #166534; }
+    .status-cadangan { background: #fff3cd; color: #856404; }
+    .status-tidak_lulus { background: #fee2e2; color: #991b1b; }
+    
+    .status-belum_diverifikasi { background: #fdf3c7; color: #a47c00; }
+    .status-valid { background: #dcfce7; color: #166534; }
+    .status-tidak_valid { background: #fee2e2; color: #991b1b; }
+
+    .status-msg {
+        font-size: 15px;
+        line-height: 1.5;
+        margin-top: var(--spacing-16);
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-12) 0;
+        border-bottom: 1px solid #f5f5f5;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        font-size: 14px;
+        color: var(--color-ash-mid);
+        font-weight: 500;
+    }
+
+    .detail-value {
+        font-size: 16px;
+        color: var(--color-studio-black);
+        font-weight: 600;
+        text-align: right;
+    }
+
+    .card-header-flex {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-24);
+        border-bottom: 1px dashed var(--color-fog-border);
+        padding-bottom: var(--spacing-12);
+    }
+
+    .card-header-flex .card-title {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .doc-status-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-12);
+    }
+
+    .doc-status-list li {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--spacing-12) var(--spacing-16);
+        background: #fafafa;
+        border-radius: var(--radius-sm);
+        border: 1px solid var(--color-fog-border);
+    }
+
+    .doc-type {
+        font-weight: 600;
+        color: var(--color-deep-ink);
+        font-size: 14px;
+    }
+
+    .doc-status {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 4px 10px;
+        border-radius: 20px;
+        text-transform: uppercase;
+    }
+    
+    @media (max-width: 768px) {
+        .status-grid { grid-template-columns: 1fr; }
+        .dashboard-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="section-light status-section" id="status-section">
+    <div class="container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Status Pendaftaran Saya</h1>
+            <a href="{% url 'pendaftaran:bukti' %}" class="btn btn-outlined">Lihat Bukti Pendaftaran</a>
+        </div>
+
+        <div class="status-grid">
+            <!-- Kolom Kiri: Status Utama -->
+            <div class="status-main">
+                <div class="card card-elevated">
+                    <h3 class="card-title">Status Seleksi</h3>
+                    <div class="status-badge-large status-{{ pendaftar.status_seleksi }}">
+                        {{ pendaftar.get_status_seleksi_display|upper }}
+                    </div>
+                    {% if pendaftar.status_seleksi == 'lulus' %}
+                        <p class="status-msg text-success mt-16">
+                            Selamat! Anda lulus di program studi <strong>{{ pendaftar.jurusan_pilihan1.nama_jurusan }}</strong>.
+                        </p>
+                    {% elif pendaftar.status_seleksi == 'cadangan' %}
+                        <p class="status-msg text-warning mt-16">
+                            Anda berstatus cadangan. Harap pantau terus secara berkala.
+                        </p>
+                    {% elif pendaftar.status_seleksi == 'tidak_lulus' %}
+                        <p class="status-msg text-error mt-16">
+                            Mohon maaf, Anda dinyatakan tidak lulus seleksi.
+                        </p>
+                    {% else %}
+                        <p class="status-msg text-muted mt-16">
+                            Dokumen sedang diverifikasi atau seleksi belum dijalankan.
+                        </p>
+                    {% endif %}
+                </div>
+
+                <div class="card card-elevated mt-24">
+                    <h3 class="card-title">Status Pembayaran</h3>
+                    <div class="status-badge-large {% if pendaftar.status_bayar == 'lunas' %}status-lulus{% else %}status-menunggu{% endif %}">
+                        {{ pendaftar.get_status_bayar_display|upper }}
+                    </div>
+                    {% if pendaftar.status_bayar == 'belum_lunas' and pendaftar.status_seleksi == 'lulus' %}
+                    <p class="status-msg mt-16">
+                        Silakan selesaikan pembayaran daftar ulang sesuai instruksi yang dikirimkan ke email Anda.
+                    </p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Detail Pendaftaran -->
+            <div class="status-details">
+                <div class="card card-elevated">
+                    <h3 class="card-title">Data Pendaftaran</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">No. Registrasi</span>
+                        <span class="detail-value text-accent font-bold">{{ pendaftar.no_registrasi }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Jalur Masuk</span>
+                        <span class="detail-value">{{ pendaftar.jalur_masuk.nama_jalur }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Pilihan 1</span>
+                        <span class="detail-value">{{ pendaftar.jurusan_pilihan1.nama_jurusan }}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Skor Akhir</span>
+                        <span class="detail-value font-bold">{{ pendaftar.skor_akhir|default:"Belum dihitung" }}</span>
+                    </div>
+                </div>
+
+                <div class="card card-elevated mt-24">
+                    <div class="card-header-flex">
+                        <h3 class="card-title">Status Dokumen</h3>
+                        <a href="{% url 'pendaftaran:upload_dokumen' %}" class="btn btn-ghost btn-sm">Edit / Tambah</a>
+                    </div>
+                    <ul class="doc-status-list">
+                        {% for doc in dokumen_list %}
+                        <li>
+                            <span class="doc-type">{{ doc.get_jenis_dokumen_display }}</span>
+                            <span class="doc-status status-{{ doc.status_verifikasi }}">
+                                {{ doc.get_status_verifikasi_display }}
+                            </span>
+                        </li>
+                        {% empty %}
+                        <li>
+                            <span class="text-error">Anda belum mengunggah dokumen!</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
